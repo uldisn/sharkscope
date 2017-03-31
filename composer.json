@@ -1,0 +1,13 @@
+{
+    "name": "uldisn/sharkscope",
+    "description": "sharkscope",
+    "require": {
+        "yiisoft/yii2": "*"
+    },    
+    "autoload": {
+        "psr-4": {
+            "uldisn\\sharkscope\\": "/"
+        }
+
+    }
+}
