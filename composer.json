@@ -2,7 +2,7 @@
     "name": "uldisn/sharkscope",
     "description": "sharkscope",
     "require": {
-        "yiisoft/yii2": "*"
+        "yiisoft/yii2-httpclient": "~2.0.1"
     },    
     "autoload": {
         "psr-4": {

@@ -4,58 +4,90 @@ namespace uldisn\sharkscope\components;
 
 use yii\httpclient\Client;
 
-
+/**
+ * Class SharcScopeClient
+ * https://www.sharkscope.com/#SharkScope-API.html
+ * @package uldisn\sharkscope\components
+ */
 class SharcScopeClient
 {
 
-    public $domain = 'http://www.sharkscope.com';
+    public $domain;
     public $username;
     public $password;
+    public $appName;
+    public $appKey;
 
-    public function __construct($domain,$username,$encodedPassword,$aplicationKey)
+    public $responseData;
+    public $client;
+
+    public $respError;
+
+    /**
+     * SharcScopeClient constructor.
+     * @param $domain
+     * @param $appName
+     * @param $username
+     * @param $encodedPassword
+     * @param $appKey
+     */
+    public function __construct($domain, $appName, $username, $encodedPassword, $appKey)
     {
         $this->domain = $domain;
         $this->username = $username;
-        $this->password =  md5(strtolower($encodedPassword).$aplicationKey);
+        $this->appName = $appName;
+        $this->appKey = $appKey;
+        $this->password = md5(md5($encodedPassword) . $this->appKey);
+        $this->client = new Client();
     }
 
-    public function request($appName, $resource, $data)
+    /**
+     * @param $resource
+     * @param array $filter
+     * @return bool
+     */
+    public function request($resource, $filter = [])
     {
 
-        $client = new Client();
-        return $client->createRequest()
+        $this->respError = [];
+
+        $url = $this->domain . '/api/' . $this->appName . '/' . $resource;
+
+        if ($filter) {
+            $url .= '?filter=' . implode(';', $filter);
+        }
+
+        $this->responseData = $this->client->createRequest()
             ->setMethod('get')
-            ->setUrl($domain . '/api/' .  $appName . '/' . $resource)
+            ->setUrl($url)
             ->setHeaders(['Accept' => 'application/json'])
             ->addHeaders(['User-Agent' => 'Mozzila'])
             ->addHeaders(['Username' => $this->username])
             ->addHeaders(['Password' => $this->password])
-            ->setData($data)
-            ->send();
+            // ->setData($data)
+            ->send()
+            ->getData();;
 
+        if (isset($this->responseData['Response']['ErrorResponse'])) {
+            $this->respError = $this->responseData['Response']['ErrorResponse'];
+            return false;
+        }
+
+        return true;
     }
 
-
-    public function requestPublic($appName, $resource, $data)
+    /**
+     *
+     * @param string $playerName
+     * @param array $filter
+     * @return bool
+     */
+    public function requestPlayerStatistic($playerName, $filter = [])
     {
 
-        $client = new Client();
-        return $client->createRequest()
-            ->setMethod('get')
-            ->setUrl($domain . '/api/' .  $appName . '/' . $resource)
-            ->setHeaders(['Accept' => 'application/json'])
-            ->addHeaders(['User-Agent' => 'Mozzila'])
-            //->addHeaders(['Username' => $this->username])
-            //->addHeaders(['Password' => $this->password])
-            ->setData($data)
-            ->send();
+        $resource = 'networks/fulltilt/players/' . $playerName . '/statistics';
+        return $this->request($resource, $filter);
 
     }
-}
-// respons XML
-//Defines a player statistic. The id attribute contains the identifier included in player responses, the
-//name is the human-readable name of the statistic and the type defines the value type.
 
-//Examples:
-//&lt;PlayerStatisticDefinition name=&quot;Av Stake&quot; type=&quot;Currency&quot; id=&quot;AvStake&quot;/&gt;
-//&lt;PlayerStatisticDefinition name=&quot;Av ROI&quot; type=&quot;Percentage&quot; id=&quot;AvROI&quot;/&gt;
+}
