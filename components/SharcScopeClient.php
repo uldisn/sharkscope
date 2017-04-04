@@ -22,6 +22,7 @@ class SharcScopeClient
     public $client;
 
     public $respError;
+    public $userInfo;
 
     /**
      * SharcScopeClient constructor.
@@ -49,7 +50,7 @@ class SharcScopeClient
     public function request($resource, $filter = [])
     {
 
-        $this->respError = [];
+        $this->respError = $this->userInfo = [];
 
         $url = $this->domain . '/api/' . $this->appName . '/' . $resource;
 
@@ -68,12 +69,28 @@ class SharcScopeClient
             ->send()
             ->getData();;
 
+        if (isset($this->responseData['Response']['UserInfo'])) {
+            $this->userInfo = $this->responseData['Response']['UserInfo'];
+        }
         if (isset($this->responseData['Response']['ErrorResponse'])) {
             $this->respError = $this->responseData['Response']['ErrorResponse'];
             return false;
         }
 
         return true;
+    }
+
+    /**
+     *
+     * @param string $playerName
+     * @return bool
+     */
+    public function requestPlayerSummary($playerName)
+    {
+
+        $resource = 'networks/fulltilt/players/' . $playerName;
+        return $this->request($resource);
+
     }
 
     /**
@@ -88,6 +105,13 @@ class SharcScopeClient
         $resource = 'networks/fulltilt/players/' . $playerName . '/statistics';
         return $this->request($resource, $filter);
 
+    }
+
+    public function getRemainingSearches(){
+        if(!$this->userInfo){
+            return false;
+        }
+        return $this->userInfo['RemainingSearches'];
     }
 
 }
