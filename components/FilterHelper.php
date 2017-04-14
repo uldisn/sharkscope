@@ -17,4 +17,19 @@ class FilterHelper
 
     }
 
+    /**
+     * @param array $filter
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @return array
+     */
+    public static function dateFromTo($filter = [], $from, $to)
+    {
+
+        $filter[] = 'Date:' . $from->format('U') . '~' . $to->format('U');
+
+        return $filter;
+
+    }
+
 }
