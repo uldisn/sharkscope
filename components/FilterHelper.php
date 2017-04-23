@@ -26,10 +26,19 @@ class FilterHelper
     public static function dateFromTo($filter = [], $from, $to)
     {
 
-        $filter[] = 'Date:' . $from->format('U') . '~' . $to->format('U');
+        $filter[] = 'Date:' . self::createDateFromToValue($from, $to);
 
         return $filter;
 
+    }
+
+    /**
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @return string
+     */
+    public static function createDateFromToValue($from, $to){
+        return $from->format('U') . '~' . $to->format('U');
     }
 
 }
