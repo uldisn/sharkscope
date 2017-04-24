@@ -93,7 +93,7 @@ class ResponseHelper
             if(!preg_match('#'. $groupSuffix.'$#', $groupName) ){
                 continue;
             }
-dump($groupName);
+
             if(isset($group['Players']['Player']['@name'])) {
                 $player = $group['Players']['Player'];
                 $playerName = $player['@name'];
