@@ -70,7 +70,6 @@ class SharcScopeClient
         $url = $this->domain . '/api/' . $this->appName . '/' . $resource;
         echo 'CURL' . $type .' '. $url .PHP_EOL;
         if ($filter) {
-            dump($filter);
             $url .= '?filter=' . implode(';', $filter);
         }
 
