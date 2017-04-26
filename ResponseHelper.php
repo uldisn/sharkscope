@@ -1,6 +1,6 @@
 <?php
 
-namespace uldisn\sharkscope\components;
+namespace uldisn\sharkscope;
 
 class ResponseHelper
 {
@@ -67,7 +67,7 @@ class ResponseHelper
             if($player['@network'] !== $network){
                 continue;
             }
-            $match = false;
+
             foreach($player['Filter']['Constraint'] as $constraint){
                 if($constraint['@id'] !== 'Date'){
                     continue;
@@ -95,6 +95,7 @@ class ResponseHelper
             }
 
             if(isset($group['Players']['Player']['@name'])) {
+                $filter = '';
                 $player = $group['Players']['Player'];
                 $playerName = $player['@name'];
                 $network = $player['@network'];
@@ -117,6 +118,8 @@ class ResponseHelper
                 $groupsList[$groupName][] = $playerName . '|' . $network . '|' . $filter;
             }else {
                 foreach ($group['Players']['Player'] as $player) {
+
+                    $filter = '';
 
                     $playerName = $player['@name'];
                     $network = $player['@network'];

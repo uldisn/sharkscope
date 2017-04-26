@@ -1,13 +1,11 @@
 <?php
 
-namespace uldisn\sharkscope\components;
-
-use yii\httpclient\Client;
+namespace uldisn\sharkscope;
 
 /**
  * Class SharcScopeClient
  * https://www.sharkscope.com/#SharkScope-API.html
- * @package uldisn\sharkscope\components
+ * @package uldisn\sharkscope
  */
 class SharcScopeClient
 {
@@ -68,10 +66,12 @@ class SharcScopeClient
         $this->respError = $this->userInfo = [];
 
         $url = $this->domain . '/api/' . $this->appName . '/' . $resource;
-        echo 'CURL' . $type .' '. $url .PHP_EOL;
+
         if ($filter) {
             $url .= '?filter=' . implode(';', $filter);
         }
+
+        echo 'CURL' . $type .' '. $url .PHP_EOL;
 
         $options = $this->curlOptions;
         $options[CURLOPT_CUSTOMREQUEST] = $type;
@@ -105,47 +105,6 @@ class SharcScopeClient
         return true;
     }
 
-
-    /**
-     * @param $resource
-     * @param array $filter
-     * @param string $type
-     * @return bool
-     */
-    public function requestOld($type, $resource, $filter = [])
-    {
-
-        $this->respError = $this->userInfo = [];
-
-        $url = $this->domain . '/api/' . $this->appName . '/' . $resource;
-            echo $type .' '. $url .PHP_EOL;
-        if ($filter) {
-            $url .= '?filter=' . implode(';', $filter);
-        }
-
-        $this->responseData = $this->client->createRequest()
-            ->setMethod($type)
-            ->setUrl($url)
-            ->setOptions([ 'protocolVersion' => '1.1'])
-            ->setHeaders(['Accept' => 'application/json'])
-            ->addHeaders(['User-Agent' => 'Mozzila'])
-            ->addHeaders(['Username' => $this->username])
-            ->addHeaders(['Password' => $this->password])
-            // ->setData($data)
-            ->send()
-            ->getData();;
-
-        if (isset($this->responseData['Response']['UserInfo'])) {
-            $this->userInfo = $this->responseData['Response']['UserInfo'];
-        }
-        if (isset($this->responseData['Response']['ErrorResponse'])) {
-            $this->respError = $this->responseData['Response']['ErrorResponse'];
-            return false;
-        }
-
-        return true;
-    }
-
     /**
      *
      * @param string $playerName
@@ -155,7 +114,7 @@ class SharcScopeClient
     {
 
         $resource = 'networks/fulltilt/players/' . rawurlencode($playerName);
-        return $this->get_web_page(self::TYPE_GET, $resource);
+        return $this->request(self::TYPE_GET, $resource);
 
     }
 

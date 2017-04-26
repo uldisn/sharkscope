@@ -1,6 +1,6 @@
 <?php
 
-namespace uldisn\sharkscope\components;
+namespace uldisn\sharkscope;
 
 
 class FilterHelper
