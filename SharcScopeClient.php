@@ -105,32 +105,32 @@ class SharcScopeClient
         return true;
     }
 
-    /**
-     *
-     * @param string $playerName
-     * @return bool
-     */
-    public function requestPlayerSummary($playerName)
-    {
-
-        $resource = 'networks/fulltilt/players/' . rawurlencode($playerName);
-        return $this->request(self::TYPE_GET, $resource);
-
-    }
-
-    /**
-     *
-     * @param string $playerName
-     * @param array $filter
-     * @return bool
-     */
-    public function requestPlayerStatistic($playerName, $filter = [])
-    {
-
-        $resource = 'networks/fulltilt/players/' . rawurlencode($playerName) . '/statistics';
-        return $this->request(self::TYPE_GET, $resource, $filter);
-
-    }
+//    /**
+//     *
+//     * @param string $playerName
+//     * @return bool
+//     */
+//    public function requestPlayerSummary($playerName)
+//    {
+//
+//        $resource = 'networks/fulltilt/players/' . rawurlencode($playerName);
+//        return $this->request(self::TYPE_GET, $resource);
+//
+//    }
+//
+//    /**
+//     *
+//     * @param string $playerName
+//     * @param array $filter
+//     * @return bool
+//     */
+//    public function requestPlayerStatistic($playerName, $filter = [])
+//    {
+//
+//        $resource = 'networks/fulltilt/players/' . rawurlencode($playerName) . '/statistics';
+//        return $this->request(self::TYPE_GET, $resource, $filter);
+//
+//    }
 
     /**
      *
@@ -204,15 +204,15 @@ class SharcScopeClient
         return $this->request(self::TYPE_DELETE, $resource, $filter);
     }
 
-    /**
-     * @param string $groupName
-     * @return bool
-     */
-    public function removeGroup($groupName)
-    {
-        $resource = 'playergroups/'.rawurlencode($groupName);
-        return $this->request(self::TYPE_DELETE, $resource);
-    }
+//    /**
+//     * @param string $groupName
+//     * @return bool
+//     */
+//    public function removeGroup($groupName)
+//    {
+//        $resource = 'playergroups/'.rawurlencode($groupName);
+//        return $this->request(self::TYPE_DELETE, $resource);
+//    }
 
 
 }

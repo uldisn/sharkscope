@@ -1,9 +1,16 @@
 {
     "name": "uldisn/sharkscope",
-    "description": "sharkscope",
-    "require": {
-        "yiisoft/yii2-httpclient": "~2.0.1"
-    },    
+    "description": "PHP library for working with ShatkSkope API",
+    "keywords": ["SharkScope","API"],
+    "license": "BSD-4-Clause",
+    "authors": [
+        {
+            "name": "Uldis Nelsons",
+            "email": "uldis@weberp.lv",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/uldisn/sharkscope",
     "autoload": {
         "psr-4": {
             "uldisn\\sharkscope\\": "/"
