@@ -6,6 +6,12 @@ namespace uldisn\sharkscope;
 class FilterHelper
 {
 
+    /**
+     * maximal date for SharkScope. In date  filter use as to, if unknown end date.
+     * Actula for adding/removing to/from groups.
+     */
+    const SHARK_SCOPE_END_DATE = '2031-12-23';
+
     public static function dateActualMonth($filter = [])
     {
         $firstDay = new \DateTime('first day of this month 00:00:00');
@@ -19,26 +25,29 @@ class FilterHelper
 
     /**
      * @param array $filter
-     * @param \DateTime $from
-     * @param \DateTime $to
+     * @param \DateTime $fromDate
+     * @param \DateTime|null $toDate
      * @return array
      */
-    public static function dateFromTo($filter = [], $from, $to)
+    public static function dateFromTo($filter = [], $fromDate, $toDate = null)
     {
 
-        $filter[] = 'Date:' . self::createDateFromToValue($from, $to);
+        $filter[] = 'Date:' . self::createDateFromToValue($fromDate, $toDate);
 
         return $filter;
 
     }
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
+     * @param \DateTime $fromDate
+     * @param \DateTime|null $toDate
      * @return string
      */
-    public static function createDateFromToValue($from, $to){
-        return $from->format('U') . '~' . $to->format('U');
+    public static function createDateFromToValue($fromDate, $toDate = null){
+        if(!$toDate){
+            $toDate = new \DateTime(self::SHARK_SCOPE_END_DATE);
+        }
+        return $fromDate->format('U') . '~' . $toDate->format('U');
     }
 
 }

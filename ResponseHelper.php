@@ -151,7 +151,7 @@ class ResponseHelper
         if(!$this->groupStatistic){
             return false;
         }
-        foreach($this->groupStatistic as $k => $row){
+        foreach($this->groupStatistic as $row){
             if($name === $row['@id']){
                 return $row['$'];
             }

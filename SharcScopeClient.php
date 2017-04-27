@@ -76,13 +76,13 @@ class SharcScopeClient
         $options = $this->curlOptions;
         $options[CURLOPT_CUSTOMREQUEST] = $type;
 
-        $ch      = curl_init( $url );
-        curl_setopt_array( $ch, $options );
-        $content = curl_exec( $ch );
-        $err     = curl_errno( $ch );
-        $errmsg  = curl_error( $ch );
-        $header  = curl_getinfo( $ch );
-        curl_close( $ch );
+        $curl      = curl_init( $url );
+        curl_setopt_array( $curl, $options );
+        $content = curl_exec( $curl );
+        $err     = curl_errno( $curl );
+        $errmsg  = curl_error( $curl );
+        $header  = curl_getinfo( $curl );
+        curl_close( $curl );
 
         $header['errno']   = $err;
         $header['errmsg']  = $errmsg;
