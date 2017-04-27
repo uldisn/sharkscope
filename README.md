@@ -65,3 +65,4 @@ php composer.phar require uldisn/sharkscope dev-master
 ### Change log
  - 1.0.0 (Apr 25, 2017) - It work!
  - 1.0.1 (Apr 27, 2017) - In FilterHelper implemented SharkScopeEnd date
+ - 1.0.2 (Apr 27, 2017) - Implemented GMT time zone for DateTime

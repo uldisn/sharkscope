@@ -147,6 +147,10 @@ class ResponseHelper
     }
 
 
+    /**
+     * @param string $name
+     * @return bool|int
+     */
     public function getGroupStatisticValue($name){
         if(!$this->groupStatistic){
             return false;
@@ -157,7 +161,7 @@ class ResponseHelper
             }
         }
 
-        return false;
+        return 0;
 
     }
 
