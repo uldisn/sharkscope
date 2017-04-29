@@ -31,6 +31,20 @@ class FilterHelper
 
     }
 
+    public static function dateActualYear($filter = [])
+    {
+        $yearFirstDay = new \DateTime('now', self::gmtTimeZone());
+        $yearFirstDay->setDate($yearFirstDay->format('Y'), 1, 1);
+
+        $yearLastDay = new \DateTime('now', self::gmtTimeZone());
+        $yearLastDay->setDate((int)$yearLastDay->format('Y') + 1, 1, 1);
+
+        $filter[] = 'Date:' . $yearLastDay->format('U') . '~' . $yearLastDay->format('U');
+
+        return $filter;
+
+    }
+
     /**
      * @param array $filter
      * @param \DateTime $fromDate
