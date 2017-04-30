@@ -12,20 +12,12 @@ class FilterHelper
      */
     const SHARK_SCOPE_END_DATE = '2031-12-23';
 
-    /**
-     * @return DateTimeZone
-     */
-    public static function gmtTimeZone()
-    {
-        return new \DateTimeZone("GMT");
-    }
-
     public static function dateActualMonth($filter = [])
     {
-        $firstDay = new \DateTime('first day of this month 00:00:00', self::gmtTimeZone());
-        $lastDay = new \DateTime('first day of next month 00:00:00', self::gmtTimeZone());
+        $firstDay = new \DateTime('first day of this month 00:00:00');
+        $lastDay = new \DateTime('first day of next month 00:00:00');
 
-        $filter[] = 'Date:' . $firstDay->format('U') . '~' . $lastDay->format('U');
+        $filter[] = 'Date:' . self::createDateFromToValue($firstDay, $lastDay);
 
         return $filter;
 
@@ -33,13 +25,13 @@ class FilterHelper
 
     public static function dateActualYear($filter = [])
     {
-        $yearFirstDay = new \DateTime('now', self::gmtTimeZone());
+        $yearFirstDay = new \DateTime('now');
         $yearFirstDay->setDate($yearFirstDay->format('Y'), 1, 1);
 
-        $yearLastDay = new \DateTime('now', self::gmtTimeZone());
+        $yearLastDay = new \DateTime('now');
         $yearLastDay->setDate((int)$yearLastDay->format('Y') + 1, 1, 1);
 
-        $filter[] = 'Date:' . $yearLastDay->format('U') . '~' . $yearLastDay->format('U');
+        $filter[] = 'Date:' . self::createDateFromToValue($yearFirstDay, $yearLastDay);
 
         return $filter;
 
@@ -67,9 +59,19 @@ class FilterHelper
      */
     public static function createDateFromToValue($fromDate, $toDate = null){
         if(!$toDate){
-            $toDate = new \DateTime(self::SHARK_SCOPE_END_DATE, self::gmtTimeZone());
+            $toDate = new \DateTime(self::SHARK_SCOPE_END_DATE);
         }
-        return $fromDate->format('U') . '~' . $toDate->format('U');
+        return self::dToU($fromDate) . '~' . self::dToU($toDate);
+    }
+
+    /**
+     * convert DateTime date part to Unix time stamp
+     * @param \DateTime $dateTime
+     * @return int
+     */
+    private static function dToU($dateTime){
+        list($year, $month, $day ) = explode('-', $dateTime->format('Y-m-d'));
+        return gmmktime(0, 0, 0, $month, $day, $year);
     }
 
 }
