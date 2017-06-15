@@ -119,17 +119,17 @@ class ResponseHelper
             }else {
                 foreach ($group['Players']['Player'] as $player) {
 
-                    $filter = '';
-
                     $playerName = $player['@name'];
                     $network = $player['@network'];
+                    $filter = '-';
+
                     if (isset($player['Filter']['Constraint']['@id'])) {
                         if ($player['Filter']['Constraint']['@id'] !== 'Date') {
                             $filter = '-';
                         }else {
                             $filter = $player['Filter']['Constraint']['Value'];
                         }
-                    } else {
+                    } elseif ( ! empty($player['Filter'])) {
                         foreach ($player['Filter']['Constraint'] as $constraint) {
                             if ($constraint['@id'] !== 'Date') {
                                 continue;
@@ -143,6 +143,7 @@ class ResponseHelper
             }
 
         }
+
         return $groupsList;
     }
 
