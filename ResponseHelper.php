@@ -19,19 +19,20 @@ class ResponseHelper
         }
 
         if (isset($response['Response']['PlayerResponse']['PlayerView'])) {
-            if (isset($playerView['Player'])) {
+            $playerView = $response['Response']['PlayerResponse']['PlayerView'];
+            if (isset($playerView['Player']['Statistics']['Statistic'])) {
                 $this->playerGroupResponse = $playerView['Player']['Statistics']['Statistic'];
-            } elseif (isset($playerView[0]) && isset($playerView[0]['Player'])) {
+            } elseif (isset($playerView[0]['Player'])) {
                 $this->playerGroupResponse = $playerView[0]['Player']['Statistics']['Statistic'];
             }
         }
 
         if (isset($response['Response']['PlayerResponse']['PlayerView'])) {
             $playerView = $response['Response']['PlayerResponse']['PlayerView'];
-            if (isset($playerView['PlayerGroup'])) {
+            if (isset($playerView['PlayerGroup']['Statistics']['Statistic'])) {
                 $this->groupStatistic = $playerView['PlayerGroup']['Statistics']['Statistic'];
-            } elseif (isset($playerView[0]) && isset($playerView[0]['Player'])) {
-                $this->groupStatistic = $playerView[0]['PlayerGroup']['Statistics']['Statistic'];
+            } elseif (isset($playerView[0]['Player']['Statistics']['Statistic'])) {
+                $this->groupStatistic = $playerView[0]['Player']['Statistics']['Statistic'];
             }
         }
     }
