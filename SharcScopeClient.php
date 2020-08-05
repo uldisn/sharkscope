@@ -156,6 +156,26 @@ class SharcScopeClient
     }
 
     /**
+     * API DOC point 3.5.3
+     * Requests completed tournaments on an optional filter.
+     * This resource requires special authorization and can be provided only
+     * by prior agreement with SharkScope. The tournaments are pre-filtered with
+     * an mutually agreed filter and will not include any tournaments
+     * older than two days.
+     * Completed Tourments
+     * @param string $network
+     * @param array $filter
+     * @return bool
+     */
+    public function requestCompletedTournaments(string $network, array $filter): bool
+    {
+
+        $resource = 'networks/'.urlencode($network).'/completedTournaments';
+        return $this->request(self::TYPE_GET, $resource, $filter);
+
+    }
+
+    /**
      * ?????
      * @param $groupName
      * @return bool
