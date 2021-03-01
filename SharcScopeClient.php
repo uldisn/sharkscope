@@ -185,9 +185,26 @@ class SharcScopeClient
      * @return bool
      * @see http://www.sharkscope.com/docs/SharkScope%20WS%20API.doc
      */
-    public function requestDailyScheduledTournaments(string $network, array $filter): bool
+    public function requestDailyScheduledTournaments(string $network, array $filter, $date): bool
     {
-        $resource = 'reports/dailyscheduledtournaments/networks/'.urlencode($network).'/';
+        $resource = 'reports/dailyscheduledtournaments/networks/'.urlencode($network).'?date='.$date;
+        return $this->request(self::TYPE_GET, $resource, $filter);
+    }
+
+    /**
+     * 3.10.6.	DAILY SCHEDULED TOURNAMENTS REPORT (BY NETWORK)
+     *    Produces a report listing the daily scheduled tournaments for a specific date and network.
+     *    The last 3 days of data are available to all Commercial Gold subscribers and above.
+     *    This is similar to the same report by region.
+     * @param string $network
+     * @param array $filter
+     * @return bool
+     * @see http://www.sharkscope.com/docs/SharkScope%20WS%20API.doc
+     */
+    public function requestActiveTournaments(string $network, array $filter): bool
+    {
+        $resource = 'networks/' . urlencode($network) . '/activeTournaments';
+
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
 
