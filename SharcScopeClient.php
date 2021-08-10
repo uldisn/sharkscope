@@ -268,4 +268,17 @@ class SharcScopeClient
 //    }
 
 
+    /**
+     *
+     * @param int $tournamentId
+     * @param string $network
+     * @return bool
+     */
+    public function requestTournamentById($tournamentId, $network)
+    {
+        $resource = 'networks/' . $network.'/tournaments/' . $tournamentId;
+
+        return $this->request(self::TYPE_GET, $resource);
+    }
+
 }
