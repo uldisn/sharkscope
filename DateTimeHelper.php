@@ -10,8 +10,7 @@ class DateTimeHelper
 {
 
     //public const SHARK_SERVER_TIMEZONE = 'America/Los_Angeles';
-    //public const SHARK_SERVER_TIMEZONE = 'UTC';
-    public const SHARK_SERVER_TIMEZONE = 'EET';
+    public const SHARK_SERVER_TIMEZONE = 'UTC';
 
     public static function getDateTime(int $timestamp, string $timezone): DateTime
     {
