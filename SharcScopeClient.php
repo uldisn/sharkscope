@@ -270,12 +270,12 @@ class SharcScopeClient
 
     /**
      *
-     * @param int $tournamentId
+     * @param string $tournamentId
      * @param string $network
      * @param array $filter
      * @return bool
      */
-    public function requestTournamentById(int $tournamentId, string $network, array $filter = [])
+    public function requestTournamentById(string $tournamentId, string $network, array $filter = [])
     {
         $resource = 'networks/' . $network.'/tournaments/' . $tournamentId;
 
