@@ -39,11 +39,7 @@ class ResponseHelper
 
     public function getGroups()
     {
-        if(!isset($this->playerGroupResponse['PlayerGroup'])){
-            return [];
-        }
-
-        return $this->playerGroupResponse['PlayerGroup'];
+        return $this->playerGroupResponse['PlayerGroup'] ?? [];
     }
 
     public function findGroup($groupName){
@@ -82,7 +78,8 @@ class ResponseHelper
         return [];
     }
 
-    public function findGroupPlayersAll($groupPrefix,$groupSuffix){
+    public function findGroupPlayersAll($groupPrefix,$groupSuffix): array
+    {
 
         $groupsList = [];
 
@@ -108,7 +105,7 @@ class ResponseHelper
                         $filter = $player['Filter']['Constraint']['Value'];
                     }
                 } else{
-                    foreach ($player['Filter']['Constraint'] as $constraint) {
+                    foreach ($player['Filter']['Constraint']??[] as $constraint) {
                         if ($constraint['@id'] !== 'Date') {
                             continue;
                         }
@@ -125,9 +122,7 @@ class ResponseHelper
                     $filter = '-';
 
                     if (isset($player['Filter']['Constraint']['@id'])) {
-                        if ($player['Filter']['Constraint']['@id'] !== 'Date') {
-                            $filter = '-';
-                        }else {
+                        if ($player['Filter']['Constraint']['@id'] === 'Date') {
                             $filter = $player['Filter']['Constraint']['Value'];
                         }
                     } elseif ( ! empty($player['Filter'])) {
@@ -138,22 +133,19 @@ class ResponseHelper
                             $filter = $constraint['Value'];
                         }
                     }
-
                     $groupsList[$groupName][] = $playerName . '|' . $network . '|' . $filter;
                 }
             }
 
         }
-
         return $groupsList;
     }
-
 
     /**
      * @param string $name
      * @return bool|int
      */
-    public function getGroupStatisticValue($name){
+    public function getGroupStatisticValue(string $name){
         if(!$this->groupStatistic){
             return false;
         }
@@ -162,10 +154,6 @@ class ResponseHelper
                 return $row['$'];
             }
         }
-
         return 0;
-
     }
-
-
 }
