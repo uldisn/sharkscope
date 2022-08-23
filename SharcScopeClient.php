@@ -282,4 +282,11 @@ class SharcScopeClient
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
 
+    public function requestUserSummary(string $playerName, string $network, array $filter = [])
+    {
+        $resource = 'networks/' . $network.'/players/' . $playerName;
+
+        return $this->request(self::TYPE_GET, $resource, $filter);
+    }
+
 }
