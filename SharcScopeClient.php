@@ -71,8 +71,6 @@ class SharcScopeClient
             $url .= '?filter=' . implode(';', $filter);
         }
 
-        echo 'CURL' . $type .' '. $url .PHP_EOL;
-
         $options = $this->curlOptions;
         $options[CURLOPT_CUSTOMREQUEST] = $type;
 
@@ -89,11 +87,12 @@ class SharcScopeClient
 
         $this->respHeader = $header;
 
-        if($header["http_code"] != 200){
+        if($header['http_code'] != 200){
             return false;
         }
 
-        $this->responseData = json_decode($content,true);
+        $this->responseData = json_decode($content, true);
+        $this->responseData['CURL'] = $type .' '. $url;
         if (isset($this->responseData['Response']['UserInfo'])) {
             $this->userInfo = $this->responseData['Response']['UserInfo'];
         }
@@ -138,21 +137,17 @@ class SharcScopeClient
      * @param array $filter
      * @return bool
      */
-    public function requestGroupStatistic($groupName, $filter = [])
+    public function requestGroupStatistic($groupName, $filter = []): bool
     {
-
         $resource = 'networks/player%20group/players/' . rawurlencode($groupName);
         return $this->request(self::TYPE_GET, $resource, $filter);
-
     }
 
 
     public function requestGroupList()
     {
-
         $resource = 'playergroups';
         return $this->request(self::TYPE_GET, $resource);
-
     }
 
     /**
@@ -169,19 +164,18 @@ class SharcScopeClient
      */
     public function requestCompletedTournaments(string $network, array $filter): bool
     {
-
         $resource = 'networks/'.urlencode($network).'/completedTournaments';
         return $this->request(self::TYPE_GET, $resource, $filter);
-
     }
 
     /**
-     * 3.10.6.	DAILY SCHEDULED TOURNAMENTS REPORT (BY NETWORK)
+     * 3.10.6.    DAILY SCHEDULED TOURNAMENTS REPORT (BY NETWORK)
      *    Produces a report listing the daily scheduled tournaments for a specific date and network.
      *    The last 3 days of data are available to all Commercial Gold subscribers and above.
      *    This is similar to the same report by region.
      * @param string $network
      * @param array $filter
+     * @param $date
      * @return bool
      * @see http://www.sharkscope.com/docs/SharkScope%20WS%20API.doc
      */
