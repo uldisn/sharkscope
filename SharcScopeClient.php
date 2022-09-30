@@ -169,6 +169,22 @@ class SharcScopeClient
     }
 
     /**
+     * 3.5.5.	BARE TOURNAMENTS
+     *
+     * @param string $network
+     * @param int[] $tournamentIds
+     * @return bool
+     */
+    public function requestBareTournaments(string $network, array $tournamentIds): bool
+    {
+        $resource = 'networks/'
+            . urlencode($network)
+            . '/bareTournaments?tournamentIDs='
+            . implode(',',$tournamentIds);
+        return $this->request(self::TYPE_GET, $resource);
+    }
+
+    /**
      * 3.10.6.    DAILY SCHEDULED TOURNAMENTS REPORT (BY NETWORK)
      *    Produces a report listing the daily scheduled tournaments for a specific date and network.
      *    The last 3 days of data are available to all Commercial Gold subscribers and above.
