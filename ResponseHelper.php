@@ -78,7 +78,7 @@ class ResponseHelper
         return [];
     }
 
-    public function findGroupPlayersAll($groupPrefix,$groupSuffix): array
+    public function findGroupPlayersAll(string $groupPrefix, string $groupSuffix = null): array
     {
 
         $groupsList = [];
@@ -88,7 +88,7 @@ class ResponseHelper
             if(!preg_match('#^'. $groupPrefix.'#', $groupName) ){
                 continue;
             }
-            if(!preg_match('#'. $groupSuffix.'$#', $groupName) ){
+            if($groupSuffix && !preg_match('#'. $groupSuffix.'$#', $groupName) ){
                 continue;
             }
 
