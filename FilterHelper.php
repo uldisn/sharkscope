@@ -3,6 +3,8 @@
 namespace uldisn\sharkscope;
 
 
+use DateTime;
+
 class FilterHelper
 {
 
@@ -14,8 +16,8 @@ class FilterHelper
 
     public static function dateActualMonth($filter = [])
     {
-        $firstDay = new \DateTime('first day of this month 00:00:00');
-        $lastDay = new \DateTime('first day of next month 00:00:00');
+        $firstDay = new DateTime('first day of this month 00:00:00');
+        $lastDay = new DateTime('first day of next month 00:00:00');
 
         $filter[] = 'Date:' . self::createDateFromToValue($firstDay, $lastDay);
 
@@ -27,8 +29,8 @@ class FilterHelper
     {
         $thisQuarter = self::getQuarterStartAndEnd(date('m'), date('Y'));
 
-        $firstDay = new \DateTime(date("c", $thisQuarter['startDate']));
-        $lastDay = new \DateTime(date("c", $thisQuarter['endDate']));
+        $firstDay = new DateTime(date("c", $thisQuarter['startDate']));
+        $lastDay = new DateTime(date("c", $thisQuarter['endDate']));
 
         $filter[] = 'Date:' . self::createDateFromToValue($firstDay, $lastDay);
 
@@ -38,10 +40,10 @@ class FilterHelper
 
     public static function dateActualYear($filter = [])
     {
-        $yearFirstDay = new \DateTime('now');
+        $yearFirstDay = new DateTime('now');
         $yearFirstDay->setDate($yearFirstDay->format('Y'), 1, 1);
 
-        $yearLastDay = new \DateTime('now');
+        $yearLastDay = new DateTime('now');
         $yearLastDay->setDate((int)$yearLastDay->format('Y') + 1, 1, 1);
 
         $filter[] = 'Date:' . self::createDateFromToValue($yearFirstDay, $yearLastDay);
@@ -70,9 +72,10 @@ class FilterHelper
      * @param \DateTime|null $toDate
      * @return string
      */
-    public static function createDateFromToValue($fromDate, $toDate = null){
+    public static function createDateFromToValue(DateTime $fromDate, DateTime $toDate = null): string
+    {
         if(!$toDate){
-            $toDate = new \DateTime(self::SHARK_SCOPE_ENDDATE);
+            $toDate = new DateTime(self::SHARK_SCOPE_ENDDATE);
         }
         return self::dToU($fromDate) . '~' . self::dToU($toDate);
     }
@@ -82,8 +85,9 @@ class FilterHelper
      * @param \DateTime $dateTime
      * @return int
      */
-    private static function dToU($dateTime){
-        list($year, $month, $day ) = explode('-', $dateTime->format('Y-m-d'));
+    private static function dToU(DateTime $dateTime): int
+    {
+        [$year, $month, $day ] = explode('-', $dateTime->format('Y-m-d'));
         return gmmktime(0, 0, 0, $month, $day, $year);
     }
 
