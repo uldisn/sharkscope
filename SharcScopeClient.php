@@ -10,8 +10,8 @@ namespace uldisn\sharkscope;
 class SharcScopeClient
 {
 
-    const TYPE_GET = 'GET';
-    const TYPE_DELETE = 'DELETE';
+    private const TYPE_GET = 'GET';
+    private const TYPE_DELETE = 'DELETE';
 
     public $domain;
     public $appName;
@@ -144,9 +144,12 @@ class SharcScopeClient
     }
 
 
-    public function requestGroupList()
+    public function requestGroupList(string $groupName = null)
     {
         $resource = 'playergroups';
+        if ($groupName) {
+            $resource .= '/' . $groupName;
+        }
         return $this->request(self::TYPE_GET, $resource);
     }
 
@@ -261,10 +264,21 @@ class SharcScopeClient
      * @param array $filter
      * @return bool
      */
-    public function removePlayerFromGroup($groupName, $network, $playerName, $filter = [])
+    public function removePlayerFromGroup(string $groupName, string $network, string $playerName, array $filter = []): bool
     {
         $resource = 'playergroups/'.rawurlencode($groupName).'/members/'.rawurlencode($network).'/'.rawurlencode($playerName);
         return $this->request(self::TYPE_DELETE, $resource, $filter);
+    }
+
+    /**
+     * API DOC 3.4.7. DELETING THE GROUP
+     * @param string $groupName
+     * @return bool
+     */
+    public function deleteGroup(string $groupName): bool
+    {
+        $resource = 'playergroups/'.rawurlencode($groupName);
+        return $this->request(self::TYPE_DELETE, $resource);
     }
 
 //    /**
@@ -285,18 +299,17 @@ class SharcScopeClient
      * @param array $filter
      * @return bool
      */
-    public function requestTournamentById(string $tournamentId, string $network, array $filter = [])
+    public function requestTournamentById(string $tournamentId, string $network, array $filter = []): bool
     {
         $resource = 'networks/' . $network.'/tournaments/' . $tournamentId;
 
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
 
-    public function requestUserSummary(string $playerName, string $network, array $filter = [])
+    public function requestUserSummary(string $playerName, string $network, array $filter = []): bool
     {
         $resource = 'networks/' . $network.'/players/' . $playerName;
 
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
-
 }
