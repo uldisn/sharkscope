@@ -143,6 +143,11 @@ class SharcScopeClient
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
 
+    public function requestUser(): bool
+    {
+        return $this->request(self::TYPE_GET, 'user');
+    }
+
 
     public function requestGroupList(string $groupName = null)
     {
