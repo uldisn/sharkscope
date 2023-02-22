@@ -2,6 +2,8 @@
 
 namespace uldisn\sharkscope;
 
+use yii\helpers\Json;
+
 /**
  * Class SharcScopeClient
  * https://www.sharkscope.com/#SharkScope-API.html
@@ -26,6 +28,9 @@ class SharcScopeClient
 
     /** @var array  */
     private $curlOptions;
+    private ?string $loggingDirectory = null;
+    private ?string $loggingFilePrefix = null;
+    private ?string $loggingSource = null;
 
     /**
      * SharcScopeClient constructor.
@@ -59,9 +64,23 @@ class SharcScopeClient
         ];
     }
 
+    public function setLogging(string $directory, string $filePrefix, string $source): void
+    {
+        $this->loggingDirectory = $directory;
+        $this->loggingFilePrefix = $filePrefix;
+        $this->loggingSource = $source;
+    }
 
     function request($type, $resource, $filter = [])
     {
+        $remainSearches = 0;
+        if ($resource !== 'user' && $this->loggingDirectory) {
+            $this->requestUser();
+            if (!$remainSearches = $this->getRemainingSearches()) {
+                $this->requestUser();
+                $remainSearches = $this->getRemainingSearches();
+            }
+        }
 
         $this->respError = $this->userInfo = [];
 
@@ -96,14 +115,51 @@ class SharcScopeClient
         if (isset($this->responseData['Response']['UserInfo'])) {
             $this->userInfo = $this->responseData['Response']['UserInfo'];
         }
+        $error = '';
         if (isset($this->responseData['Response']['ErrorResponse'])) {
             $this->respError = $this->responseData['Response']['ErrorResponse'];
-            return false;
+			$error = Json::encode($this->respError);
         }
-
-        return true;
+        $this->log($remainSearches,$type,$resource,$filter, $error);
+        if ($this->respError) {
+			return false;
+		}
+		return true;
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
+    private function log(int $remainSearches, string $type, string $resource, array $filter, string $error): void
+    {
+        if ($resource === 'user') {
+            return;
+        }
+        if (!$this->loggingDirectory) {
+            return;
+        }
+        $remainingSearches = $this->getRemainingSearches();
+        $content = implode(
+            ',',
+            [
+                date('H:i:s'),
+                $this->loggingSource,
+                $type,
+                $resource,
+                $remainSearches,
+                $remainingSearches,
+                $remainSearches - $remainingSearches,
+                implode(';',$filter),
+                $error
+            ]
+        );
+        $filePath = $this->loggingDirectory . '/' . $this->loggingFilePrefix . '-' . date('Ymd') . '.log';
+        if (file_exists($filePath)) {
+            file_put_contents($filePath, PHP_EOL . $content, FILE_APPEND);
+        } else {
+            file_put_contents($filePath, $content);
+        }
+    }
 //    /**
 //     *
 //     * @param string $playerName

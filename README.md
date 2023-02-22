@@ -33,6 +33,7 @@ php composer.phar require uldisn/sharkscope dev-master
         $appName = '???????';
 
         $client = new SharcScopeClient($domain, $appName, $userName, $password, $appKey);
+        $this->client->setLogging('shark-log',$username,'player statistic');
         
         if($client->requestGroupList()) {
             $groupList = $this->client->responseData;
@@ -71,4 +72,4 @@ php composer.phar require uldisn/sharkscope dev-master
  - 1.0.8 (Mar 1, 2021) - added method requestActiveTournaments()
  - 1.0.13 (Nov 16, 2022) - added method deleteGroup()
  - 1.0.14 (Nov 22, 2022) - added method requestUser() 
- 
+ - 1.0.15 (Feb 22, 2023) - added logging
