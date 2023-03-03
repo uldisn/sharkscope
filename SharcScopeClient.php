@@ -2,7 +2,7 @@
 
 namespace uldisn\sharkscope;
 
-use yii\helpers\Json;
+use Exception;
 
 /**
  * Class SharcScopeClient
@@ -25,6 +25,7 @@ class SharcScopeClient
     public $respHeader;
     public $userInfo;
     public $playerGroupResponse;
+    public $error;
 
     /** @var array  */
     private $curlOptions;
@@ -118,7 +119,7 @@ class SharcScopeClient
         $error = '';
         if (isset($this->responseData['Response']['ErrorResponse'])) {
             $this->respError = $this->responseData['Response']['ErrorResponse'];
-			$error = Json::encode($this->respError);
+			$error = json_encode($this->respError);
         }
         $this->log($remainSearches,$type,$resource,$filter, $error);
         if ($this->respError) {
@@ -205,7 +206,7 @@ class SharcScopeClient
     }
 
 
-    public function requestGroupList(string $groupName = null)
+    public function requestGroupList(string $groupName = null): bool
     {
         $resource = 'playergroups';
         if ($groupName) {
@@ -214,6 +215,32 @@ class SharcScopeClient
         return $this->request(self::TYPE_GET, $resource);
     }
 
+    public function requestGroupListByFullName(string $groupName): ?array
+    {
+        $this->error = null;
+        if (!$this->requestGroupList($groupName)) {
+            if ($this->respError['Error']['$']??'' === ' Player group not found.') {
+                return [];
+            }
+            return null;
+        }
+        $groupList = $this->responseData;
+        $playerStatistic = new ResponseHelper($groupList);
+        if(!$playerStatistic->playerGroupResponse){
+            $this->error = 'Empty playerGroupResponse';
+            return null;
+        }
+        try {
+            $groupsPlayers = ($playerStatistic->findGroupPlayersAll($groupName));
+        } catch (Exception $e) {
+            $this->error = 'Exception: ' .
+                $e->getMessage() . PHP_EOL .
+                'Shark data: ' . json_encode($playerStatistic->playerGroupResponse) . PHP_EOL .
+                $e->getTraceAsString();
+            return null;
+        }
+        return $groupsPlayers;
+    }
     /**
      * API DOC point 3.5.3
      * Requests completed tournaments on an optional filter.

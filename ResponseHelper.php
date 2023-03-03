@@ -39,7 +39,15 @@ class ResponseHelper
 
     public function getGroups()
     {
-        return $this->playerGroupResponse['PlayerGroup'] ?? [];
+        /** in response one group */
+        if (!isset($this->playerGroupResponse['PlayerGroup'])) {
+            return [];
+        }
+        /** in response one group */
+        if (isset($this->playerGroupResponse['PlayerGroup']['Players'])) {
+            return [$this->playerGroupResponse['PlayerGroup']];
+        }
+        return $this->playerGroupResponse['PlayerGroup'];
     }
 
     public function findGroup($groupName){

@@ -73,3 +73,4 @@ php composer.phar require uldisn/sharkscope dev-master
  - 1.0.13 (Nov 16, 2022) - added method deleteGroup()
  - 1.0.14 (Nov 22, 2022) - added method requestUser() 
  - 1.0.15 (Feb 22, 2023) - added logging
+ - 1.0.16 (Mar 3, 2023) - added method requestGroupListByFullName()
