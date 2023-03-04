@@ -141,7 +141,7 @@ class SharcScopeClient
         }
         $remainingSearches = $this->getRemainingSearches();
         $content = implode(
-            ',',
+            "\t",
             [
                 date('H:i:s'),
                 $this->loggingSource,
@@ -155,11 +155,20 @@ class SharcScopeClient
             ]
         );
         $filePath = $this->loggingDirectory . '/' . $this->loggingFilePrefix . '-' . date('Ymd') . '.log';
-        if (file_exists($filePath)) {
-            file_put_contents($filePath, PHP_EOL . $content, FILE_APPEND);
+        if (!file_exists($filePath)) {
+            /** header */
+            file_put_contents(
+                $filePath,
+                implode(
+                    "\t",
+                    ['time', 'process', 'method', 'request', 'remain after', 'remain before', 'used remains', 'filter', 'Error']
+                ) . PHP_EOL .
+                $content
+            );
         } else {
-            file_put_contents($filePath, $content);
+            file_put_contents($filePath, PHP_EOL . $content, FILE_APPEND);
         }
+
     }
 //    /**
 //     *
