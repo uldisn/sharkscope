@@ -231,6 +231,7 @@ class SharcScopeClient
             if ($this->respError['Error']['$']??'' === ' Player group not found.') {
                 return [];
             }
+	    $this->error = $this->respError['Error']['$']??'';
             return null;
         }
         $groupList = $this->responseData;
