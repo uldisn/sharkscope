@@ -15,20 +15,18 @@ class SharcScopeClient
     private const TYPE_GET = 'GET';
     private const TYPE_DELETE = 'DELETE';
 
-    public $domain;
-    public $appName;
+    public string $domain;
+    public string $appName;
 
-    public $responseData;
-    public $client;
-
-    public $respError;
-    public $respHeader;
-    public $userInfo;
+    public ?array $responseData =null;
+    public array $respError = [];
+    public ?array $respHeader;
+    public ?array $userInfo = null;
     public $playerGroupResponse;
     public $error;
 
     /** @var array  */
-    private $curlOptions;
+    private array $curlOptions;
     private ?string $loggingDirectory = null;
     private ?string $loggingFilePrefix = null;
     private ?string $loggingSource = null;
@@ -72,7 +70,10 @@ class SharcScopeClient
         $this->loggingSource = $source;
     }
 
-    function request($type, $resource, $filter = [])
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function request($type, $resource, array $filter = []): bool
     {
         $remainSearches = 0;
         if ($resource !== 'user' && $this->loggingDirectory) {
@@ -108,18 +109,35 @@ class SharcScopeClient
         $this->respHeader = $header;
 
         if($header['http_code'] != 200){
+            $this->respError['error'] = 'http_code =' .  $header['http_code'];
+            $this->respError['CURL'] = $type . ' ' . $url;
+            $this->respError['responseHeader'] = $header;
+            $this->respError['responseContent'] = $content;
             return false;
         }
 
-        $this->responseData = json_decode($content, true);
-        $this->responseData['CURL'] = $type .' '. $url;
+        try {
+            $this->responseData = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+            $this->responseData['CURL'] = $type . ' ' . $url;
+        } catch (Exception $e) {
+            $this->respError['error'] = 'Error on json_decode content: ' . $e->getMessage();
+            $this->respError['CURL'] = $type . ' ' . $url;
+            $this->respError['responseHeader'] = $header;
+            $this->respError['responseContent'] = $content;
+            return false;
+        }
         if (isset($this->responseData['Response']['UserInfo'])) {
             $this->userInfo = $this->responseData['Response']['UserInfo'];
         }
         $error = '';
         if (isset($this->responseData['Response']['ErrorResponse'])) {
             $this->respError = $this->responseData['Response']['ErrorResponse'];
-			$error = json_encode($this->respError);
+			try {
+                $error = json_encode($this->respError, JSON_THROW_ON_ERROR);
+            } catch (Exception $e) {
+                $this->respError['respError'] = print_r($this->respError, true);
+                $this->respError['error'] = 'Error on json_encode content: ' . $e->getMessage();
+            }
         }
         $this->log($remainSearches,$type,$resource,$filter, $error);
         if ($this->respError) {
@@ -129,7 +147,6 @@ class SharcScopeClient
     }
 
     /**
-     * @throws \yii\base\Exception
      */
     private function log(int $remainSearches, string $type, string $resource, array $filter, string $error): void
     {
@@ -202,19 +219,26 @@ class SharcScopeClient
      * @param string $groupName
      * @param array $filter
      * @return bool
+     * @throws \yii\base\Exception
      */
-    public function requestGroupStatistic($groupName, $filter = []): bool
+    public function requestGroupStatistic(string $groupName, array $filter = []): bool
     {
         $resource = 'networks/player%20group/players/' . rawurlencode($groupName);
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function requestUser(): bool
     {
         return $this->request(self::TYPE_GET, 'user');
     }
 
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function requestGroupList(string $groupName = null): bool
     {
         $resource = 'playergroups';
@@ -224,14 +248,18 @@ class SharcScopeClient
         return $this->request(self::TYPE_GET, $resource);
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function requestGroupListByFullName(string $groupName): ?array
     {
         $this->error = null;
         if (!$this->requestGroupList($groupName)) {
             if ($this->respError['Error']['$']??'' === ' Player group not found.') {
+                $this->error = 'Player group not found.';
                 return [];
             }
-	    $this->error = $this->respError['Error']['$']??'';
+	        $this->error = $this->respError['Error']['$']??'';
             return null;
         }
         $groupList = $this->responseData;
@@ -243,14 +271,20 @@ class SharcScopeClient
         try {
             $groupsPlayers = ($playerStatistic->findGroupPlayersAll($groupName));
         } catch (Exception $e) {
+            try {
+                $response = json_encode($playerStatistic->playerGroupResponse, JSON_THROW_ON_ERROR);
+            } catch (Exception $e) {
+                $response = print_r($playerStatistic->playerGroupResponse, true);
+            }
             $this->error = 'Exception: ' .
                 $e->getMessage() . PHP_EOL .
-                'Shark data: ' . json_encode($playerStatistic->playerGroupResponse) . PHP_EOL .
+                'Shark data: ' . $response . PHP_EOL .
                 $e->getTraceAsString();
             return null;
         }
         return $groupsPlayers;
     }
+
     /**
      * API DOC point 3.5.3
      * Requests completed tournaments on an optional filter.
@@ -262,6 +296,7 @@ class SharcScopeClient
      * @param string $network
      * @param array $filter
      * @return bool
+     * @throws \yii\base\Exception
      */
     public function requestCompletedTournaments(string $network, array $filter): bool
     {
@@ -270,11 +305,12 @@ class SharcScopeClient
     }
 
     /**
-     * 3.5.5.	BARE TOURNAMENTS
+     * 3.5.5.    BARE TOURNAMENTS
      *
      * @param string $network
      * @param int[] $tournamentIds
      * @return bool
+     * @throws \yii\base\Exception
      */
     public function requestBareTournaments(string $network, array $tournamentIds): bool
     {
@@ -294,6 +330,7 @@ class SharcScopeClient
      * @param array $filter
      * @param $date
      * @return bool
+     * @throws \yii\base\Exception
      * @see http://www.sharkscope.com/docs/SharkScope%20WS%20API.doc
      */
     public function requestDailyScheduledTournaments(string $network, array $filter, $date): bool
@@ -303,13 +340,14 @@ class SharcScopeClient
     }
 
     /**
-     * 3.10.6.	DAILY SCHEDULED TOURNAMENTS REPORT (BY NETWORK)
+     * 3.10.6.    DAILY SCHEDULED TOURNAMENTS REPORT (BY NETWORK)
      *    Produces a report listing the daily scheduled tournaments for a specific date and network.
      *    The last 3 days of data are available to all Commercial Gold subscribers and above.
      *    This is similar to the same report by region.
      * @param string $network
      * @param array $filter
      * @return bool
+     * @throws \yii\base\Exception
      * @see http://www.sharkscope.com/docs/SharkScope%20WS%20API.doc
      */
     public function requestActiveTournaments(string $network, array $filter): bool
@@ -323,8 +361,9 @@ class SharcScopeClient
      * ?????
      * @param $groupName
      * @return bool
+     * @throws \yii\base\Exception
      */
-    public function requestGroupRetrieval($groupName)
+    public function requestGroupRetrieval($groupName): bool
     {
 
         $resource = 'playergroups/'.rawurlencode($groupName);
@@ -340,27 +379,29 @@ class SharcScopeClient
     }
 
     /**
-     * 3.4.4.	ADDING PLAYERS
+     * 3.4.4.    ADDING PLAYERS
      * @param string $groupName
      * @param string $network
      * @param string $playerName
      * @param array $filter
      * @return bool
+     * @throws \yii\base\Exception
      */
-    public function addPlayerToGroup($groupName, $network, $playerName,$filter = [])
+    public function addPlayerToGroup(string $groupName, string $network, string $playerName, array $filter = []): bool
     {
         $resource = 'playergroups/'.rawurlencode($groupName).'/members/'.rawurlencode($network).'/'.rawurlencode($playerName);
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
 
     /**
-     * 3.4.6.	DELETING MEMBERS
+     * 3.4.6.    DELETING MEMBERS
      * do not work ????
      * @param string $groupName
      * @param string $network
      * @param string $playerName
      * @param array $filter
      * @return bool
+     * @throws \yii\base\Exception
      */
     public function removePlayerFromGroup(string $groupName, string $network, string $playerName, array $filter = []): bool
     {
@@ -372,6 +413,7 @@ class SharcScopeClient
      * API DOC 3.4.7. DELETING THE GROUP
      * @param string $groupName
      * @return bool
+     * @throws \yii\base\Exception
      */
     public function deleteGroup(string $groupName): bool
     {
@@ -396,6 +438,7 @@ class SharcScopeClient
      * @param string $network
      * @param array $filter
      * @return bool
+     * @throws \yii\base\Exception
      */
     public function requestTournamentById(string $tournamentId, string $network, array $filter = []): bool
     {
@@ -404,6 +447,9 @@ class SharcScopeClient
         return $this->request(self::TYPE_GET, $resource, $filter);
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function requestUserSummary(string $playerName, string $network, array $filter = []): bool
     {
         $resource = 'networks/' . $network.'/players/' . $playerName;
