@@ -95,25 +95,40 @@ class SharcScopeClient
         $options = $this->curlOptions;
         $options[CURLOPT_CUSTOMREQUEST] = $type;
 
-        $curl      = curl_init( $url );
-        curl_setopt_array( $curl, $options );
-        $content = curl_exec( $curl );
-        $err     = curl_errno( $curl );
-        $errmsg  = curl_error( $curl );
-        $header  = curl_getinfo( $curl );
-        curl_close( $curl );
+        $counter = 0;
+        while (true) {
+            $curl = curl_init($url);
+            curl_setopt_array($curl, $options);
+            $content = curl_exec($curl);
+            $err = curl_errno($curl);
+            $errmsg = curl_error($curl);
+            $header = curl_getinfo($curl);
+            curl_close($curl);
 
-        $header['errno']   = $err;
-        $header['errmsg']  = $errmsg;
+            $header['errno'] = $err;
+            $header['errmsg'] = $errmsg;
 
-        $this->respHeader = $header;
+            $this->respHeader = $header;
 
-        if($header['http_code'] != 200){
-            $this->respError['error'] = 'http_code =' .  $header['http_code'];
+            /** OK */
+            if ((int)$header['http_code'] === 200) {
+                $this->respError = [];
+                break;
+            }
+            $this->respError['error'] = 'http_code =' . $header['http_code'];
             $this->respError['CURL'] = $type . ' ' . $url;
             $this->respError['responseHeader'] = $header;
             $this->respError['responseContent'] = $content;
-            return false;
+
+            /** 503 - service unavailable */
+            if ((int)$header['http_code'] !== 503) {
+                return false;
+            }
+            $counter ++;
+            if ($counter > 5) {
+                return false;
+            }
+            sleep(5);
         }
 
         try {
