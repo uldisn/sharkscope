@@ -30,6 +30,10 @@ class SharcScopeClient
     private ?string $loggingDirectory = null;
     private ?string $loggingFilePrefix = null;
     private ?string $loggingSource = null;
+    /**
+     * @var mixed
+     */
+    private ?string $userName = null;
 
     /**
      * SharcScopeClient constructor.
@@ -43,6 +47,7 @@ class SharcScopeClient
     {
         $this->domain = $domain;
         $this->appName = $appName;
+        $this->userName = $username;
 
         $this->curlOptions = [
             CURLOPT_RETURNTRANSFER => true,     // return web page
@@ -119,6 +124,7 @@ class SharcScopeClient
             $this->respError['CURL'] = $type . ' ' . $url;
             $this->respError['responseHeader'] = $header;
             $this->respError['responseContent'] = $content;
+            $this->respError['user'] = $this->userName;
 
             /** 503 - service unavailable */
             if ((int)$header['http_code'] !== 503) {
@@ -146,7 +152,10 @@ class SharcScopeClient
         }
         $error = '';
         if (isset($this->responseData['Response']['ErrorResponse'])) {
-            $this->respError = $this->responseData['Response']['ErrorResponse'];
+            $this->respError = array_merge(
+                $this->respError,
+                $this->responseData['Response']['ErrorResponse']
+            );
 			try {
                 $error = json_encode($this->respError, JSON_THROW_ON_ERROR);
             } catch (Exception $e) {
